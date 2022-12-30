@@ -11,6 +11,12 @@ AC02_StaticMesh::AC02_StaticMesh()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
 
+	ConstructorHelpers::FObjectFinder<UStaticMesh> meshAsset(L"/Game/Meshes/SM_Cube");
+
+	if(meshAsset.Succeeded())
+		Mesh->SetStaticMesh(meshAsset.Object);
+	else
+		UE_LOG(LogTemp, Error, L"%s", TEXT("StaticMesh Asset 불러오기 실패."));
 }
 
 // Called when the game starts or when spawned
