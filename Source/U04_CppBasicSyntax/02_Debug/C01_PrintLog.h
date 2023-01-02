@@ -4,28 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "C02_StaticMesh.generated.h"
+#include "C01_PrintLog.generated.h"
 
 UCLASS()
-class U04_CPPBASICSYNTAX_API AC02_StaticMesh : public AActor
+class U04_CPPBASICSYNTAX_API AC01_PrintLog : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AC02_StaticMesh();
+	AC01_PrintLog();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-private:
-	UFUNCTION()
-		void ChangeParameter();
 
-protected:
-	UPROPERTY(VisibleDefaultsOnly)
-		class UStaticMeshComponent* Mesh;
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
-private:
-		class UMaterialInstanceDynamic* DynamicMaterial;
 };
