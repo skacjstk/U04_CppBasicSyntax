@@ -5,4 +5,8 @@ AC00_BoxBase::AC00_BoxBase()
 {
 	Box = CreateDefaultSubobject<UBoxComponent>("Box");
 	Box->SetupAttachment(Scene);
+
+	Box->bHiddenInGame = false;
+
+	Box->SetRelativeScale3D(FVector(3));
 }
