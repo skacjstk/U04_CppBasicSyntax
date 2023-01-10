@@ -5,6 +5,8 @@
 #include "Global.h"
 #include "C05_MultiTrigger.h"
 #include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceConstant.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 AC06_Cubes::AC06_Cubes()
@@ -38,20 +40,37 @@ void AC06_Cubes::BeginPlay()
 	if (multiTrigger == nullptr) return;
 	multiTrigger->OnMultiBeginOverlap.AddUFunction(this, "OnStartFalling");
 
+	// Dynamic material 생성후 삽입
+	UObject* obj = StaticLoadObject(UMaterialInstanceConstant::StaticClass(), nullptr,
+		TEXT("MaterialInstanceConstant'/Game/Materials/Mat_StaticMesh.Mat_StaticMesh'"));
+
+	UMaterialInstanceConstant* material = Cast<UMaterialInstanceConstant>(obj);
+
 	for (int32 i = 0; i < 3; ++i) {
 		 FTransform transform = Cubes[i]->GetComponentToWorld(); 
 		 FirstLocations[i] = transform.GetLocation();
-	}
 
+		 if (material == nullptr) continue;
+			Cubes[i]->SetMaterial(0, UMaterialInstanceDynamic::Create(material, nullptr));
+	}
 }
 
 void AC06_Cubes::OnStartFalling(int32 Inindex, FLinearColor InColor)
 {
-	for (int32 i = 0; i < 3; ++i) {
+	for (int32 i = 0; i < 3; ++i) {	
 		Cubes[i]->SetSimulatePhysics(false);
-		Cubes[i]->SetWorldLocation(FirstLocations[i]);
+		Cubes[i]->SetWorldLocation(FirstLocations[i], false, nullptr, ETeleportType::TeleportPhysics);	
+		// 이거 순서다르면, index가 같으면 되돌아오지 않더라
+
+
+		UMaterialInstanceDynamic* dynamicMaterial = Cast<UMaterialInstanceDynamic>(Cubes[i]->GetMaterial(0));
+		if (dynamicMaterial == nullptr) return;
+		dynamicMaterial->SetVectorParameterValue("BaseColor", FLinearColor(0.3f,0.3f,0.3f));
 	}
 	Cubes[Inindex]->SetSimulatePhysics(true);
+	UMaterialInstanceDynamic* dynamicMaterial = Cast<UMaterialInstanceDynamic>(Cubes[Inindex]->GetMaterial(0));
+	if (dynamicMaterial == nullptr) return;
+	dynamicMaterial->SetVectorParameterValue("BaseColor", InColor);
 
 }
 

@@ -24,4 +24,6 @@ private:
 	UFUNCTION()
 		void OnStartFalling(int32 Inindex, FLinearColor InColor);
 
+private:
+	class UMaterialInstanceDynamic* DynamicMaterial;
 };
