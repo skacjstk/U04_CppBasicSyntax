@@ -22,4 +22,7 @@ private:
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void SetBodyColor();
+	UFUNCTION(BlueprintNativeEvent)
+		void ResetBodyColor();
+	void ResetBodyColor_Implementation();	// 빨간줄 제거용
 };
