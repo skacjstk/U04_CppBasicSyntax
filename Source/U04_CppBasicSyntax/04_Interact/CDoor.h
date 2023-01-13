@@ -19,6 +19,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	UFUNCTION()
+		void ActorBeginOverlap(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UFUNCTION()
+		void ActorEndOverlap(class AActor* OverlappedActor, class AActor* OtherActor);
+	UFUNCTION()
+		void Interact();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -30,7 +38,23 @@ public:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UStaticMeshComponent* Door;
 	UPROPERTY(VisibleDefaultsOnly)
-		class UStaticMeshComponent* Box;
+		class UBoxComponent* Box;
 
+private:
+	UPROPERTY(EditAnywhere)
+	bool bHiddenCollision = false;
+	UPROPERTY(EditAnywhere)
+		float MaxDegree = 90.f;
+	UPROPERTY(EditAnywhere)
+		float Speed = 100.f;	// 문이 열리는 속도
 
+private:
+	class ACPlayer* Player;	
+	float Direction;
+	float DirectionMaxDegree;	// 최종적으로 만들어진, 변화해야 할 각도 양
+	float YawPerTick;
+
+	bool bClosed = true;	// Open or Close
+	bool bOpening;	// Tick 조건판단용
+	bool bClosing;	// Tick 조건판단용
 };

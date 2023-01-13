@@ -38,6 +38,11 @@ private:
 	void OffRun();
 
 	void OnInteract();
+	void OnRifle();
+public:
+
+	UPROPERTY()
+		FInteractEvent OnInteractEvent;
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
@@ -45,8 +50,6 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
 
-	UPROPERTY()
-		FInteractEvent OnInteractEvent;
 private:
 	class UMaterialInstanceDynamic* BodyMaterialDynamic;
 	class UMaterialInstanceDynamic* LogoMaterialDynamic;
