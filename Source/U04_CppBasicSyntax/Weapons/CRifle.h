@@ -15,6 +15,14 @@ public:
 	// Sets default values for this actor's properties
 	ACRifle();
 
+	static ACRifle* Spawn(class UWorld* InWorld, class ACharacter* InOwnerCharacter);
+
+	FORCEINLINE bool IsEquipped() { return bEquipped; }
+	FORCEINLINE bool IsEquipping() { return bEquipping; }
+
+	void Equip();
+	void Unequip();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -28,10 +36,17 @@ private:
 		FName HolsterSocket = "Holster_Rifle";
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName HandSocket = "Hand_Rifle";
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+		class UAnimMontage* GrabMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+		class UAnimMontage* UngrabMontage;
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
-	// Todo: 생성자에서 스켈매쉬 컴포 성성-> 에셋 세팅
-	// 플레이어에게 스폰
-	// 소켓에 Attach
+	class ACharacter* OwnerCharacter;
+
+	bool bEquipped; 	// true: OnRifle, False : OffRifle
+	bool bEquipping;	// 행동 모션 재생중일 때
 };

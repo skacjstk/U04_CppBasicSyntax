@@ -21,7 +21,9 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 		float Speed;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+		bool bEquipped;
 private:
-	class ACPlayer* Player;	// Pawn 이나 Character로 해도 됨. 이 프로젝트는 캐릭터가 1개
+	class ACharacter* OwnerCharacter;	// Pawn 이나 Character로 해도 됨. 이 프로젝트는 캐릭터가 1개
 
 };

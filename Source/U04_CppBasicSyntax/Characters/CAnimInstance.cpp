@@ -3,16 +3,26 @@
 
 #include "Global.h"
 #include "CAnimInstance.h"
-#include "Characters/CPlayer.h"
+#include "GameFramework/Character.h"
+#include "Characters/IRifle.h"
+#include "Weapons/CRifle.h"
 
 void UCAnimInstance::NativeBeginPlay()
 {
-	Player = Cast<ACPlayer>(TryGetPawnOwner());	// 역시 포인터를 넣으면 안댐
+	Super::NativeBeginPlay();
+	OwnerCharacter = Cast<ACharacter>(TryGetPawnOwner());	// 역시 포인터를 넣으면 안댐
 	
 }
 void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
-	if (Player == nullptr) return;
-	Speed = Player->GetVelocity().Size2D();
+	Super::NativeUpdateAnimation(DeltaSeconds);
+	if (OwnerCharacter == nullptr) return;
+	Speed = OwnerCharacter->GetVelocity().Size2D();
+
+	
+	IIRifle* rifleInterface = Cast<IIRifle>(OwnerCharacter);
+	if (!!rifleInterface) {
+		bEquipped = rifleInterface->GetRifle()->IsEquipped();	// 이 부분도 Null Check 해야 함
+	}
 	
 }
