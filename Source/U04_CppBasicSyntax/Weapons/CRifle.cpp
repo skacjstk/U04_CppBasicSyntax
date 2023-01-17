@@ -1,3 +1,5 @@
+#include "CRifle.h"
+#include "CRifle.h"
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
@@ -42,11 +44,50 @@ void ACRifle::Equip()
 	if (bEquipping == true) return;
 	bEquipping = true;
 
-	OwnerCharacter->PlayAnimMontage(GrabMontage);
+	OwnerCharacter->PlayAnimMontage(GrabMontage, 1.75f);
+}
+
+void ACRifle::Begin_Equip()
+{
+	bEquipped = true;
+	AttachToComponent(OwnerCharacter->GetMesh(),FAttachmentTransformRules(EAttachmentRule::KeepRelative,true), HandSocket);
+}
+
+void ACRifle::End_Equip()
+{
+	bEquipping = false;
+
+}
+
+void ACRifle::Begin_Unequip()
+{
+	bEquipped = false;
+	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), HolsterSocket);
+
+}
+
+void ACRifle::End_Unequip()
+{
+	bEquipping = false;
 }
 
 void ACRifle::Unequip()
 {
+	if (bEquipped == false) return;
+	if (bEquipping == true) return;
+	bEquipping = true;
+
+	OwnerCharacter->PlayAnimMontage(UngrabMontage, 1.75f);
+}
+
+void ACRifle::BeginAiming()
+{
+	bAiming = true;
+}
+
+void ACRifle::EndAiming()
+{
+	bAiming = false;	
 }
 
 // Called when the game starts or when spawned

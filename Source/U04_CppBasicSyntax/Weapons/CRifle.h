@@ -19,9 +19,21 @@ public:
 
 	FORCEINLINE bool IsEquipped() { return bEquipped; }
 	FORCEINLINE bool IsEquipping() { return bEquipping; }
+	FORCEINLINE bool IsAiming() { return bAiming; }
+
 
 	void Equip();
+
+	void Begin_Equip();
+	void End_Equip();
+
+	void Begin_Unequip();
+	void End_Unequip();
+
 	void Unequip();
+
+	void BeginAiming();
+	void EndAiming();
 
 protected:
 	// Called when the game starts or when spawned
@@ -49,4 +61,5 @@ private:
 
 	bool bEquipped; 	// true: OnRifle, False : OffRifle
 	bool bEquipping;	// 행동 모션 재생중일 때
+	bool bAiming;		// true: Aim 모션으로 
 };

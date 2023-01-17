@@ -18,6 +18,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+protected:
+	UFUNCTION(BlueprintImplementableEvent, Category = "Zoom")
+		void ZoomIn();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Zoom")
+		void ZoomOut();
+
 public:
 	FORCEINLINE class ACRifle* GetRifle() override { return Rifle; };
 	virtual void Tick(float DeltaTime) override;
@@ -41,6 +47,10 @@ private:
 
 	void OnInteract();
 	void OnRifle();
+
+	void OnAim();
+	void OffAim();
+
 public:
 
 	UPROPERTY()
@@ -49,7 +59,8 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
 
-	UPROPERTY(VisibleDefaultsOnly)
+protected:
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
 
 private:

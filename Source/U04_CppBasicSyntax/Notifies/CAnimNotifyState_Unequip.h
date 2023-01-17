@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "CAnimNotifyState_Equip.generated.h"
+#include "CAnimNotifyState_Unequip.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class U04_CPPBASICSYNTAX_API UCAnimNotifyState_Equip : public UAnimNotifyState
+class U04_CPPBASICSYNTAX_API UCAnimNotifyState_Unequip : public UAnimNotifyState
 {
 	GENERATED_BODY()
 public:
