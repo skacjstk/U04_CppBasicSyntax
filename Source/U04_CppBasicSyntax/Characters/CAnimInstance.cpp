@@ -17,12 +17,16 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	if (OwnerCharacter == nullptr) return;
-	Speed = OwnerCharacter->GetVelocity().Size2D();
 
+	Speed = OwnerCharacter->GetVelocity().Size2D();
+	Direction = CalculateDirection(OwnerCharacter->GetVelocity(), OwnerCharacter->GetControlRotation());
+//	Pitch = OwnerCharacter->GetControlRotation().Pitch;
+	Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;	// 둘이 같은 것
 	
 	IIRifle* rifleInterface = Cast<IIRifle>(OwnerCharacter);
 	if (!!rifleInterface) {
 		bEquipped = rifleInterface->GetRifle()->IsEquipped();	// 이 부분도 Null Check 해야 함
+		bAiming = rifleInterface->GetRifle()->IsAiming();
 	}
 	
 }

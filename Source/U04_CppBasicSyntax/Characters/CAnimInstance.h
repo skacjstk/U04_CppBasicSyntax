@@ -22,7 +22,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 		float Speed;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+		float Direction;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+		float Pitch;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 		bool bEquipped;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+		bool bAiming;
 private:
 	class ACharacter* OwnerCharacter;	// Pawn 이나 Character로 해도 됨. 이 프로젝트는 캐릭터가 1개
 

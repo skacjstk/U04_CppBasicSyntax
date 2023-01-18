@@ -154,10 +154,14 @@ void ACPlayer::OnRifle()
 {
 	if (Rifle->IsEquipped())
 	{
+		OffAim();
 		Rifle->Unequip();
 		return;
 	}
-	Rifle->Equip();
+	else {
+		CLog::Log("UnEqipppp");
+		Rifle->Equip();
+	}
 }
 
 void ACPlayer::OnAim()
@@ -172,6 +176,7 @@ void ACPlayer::OnAim()
 	SpringArm->SocketOffset = FVector(0, 30, 10);
 
 	ZoomIn();
+	Rifle->BeginAiming();
 }
 
 void ACPlayer::OffAim()
@@ -185,5 +190,6 @@ void ACPlayer::OffAim()
 	SpringArm->SocketOffset = FVector(0,60,0);
 
 	ZoomOut();
+	Rifle->EndAiming();
 }
 
