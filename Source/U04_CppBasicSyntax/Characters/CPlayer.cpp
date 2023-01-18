@@ -33,11 +33,11 @@ ACPlayer::ACPlayer()
 		GetMesh()->SetAnimInstanceClass(animClass.Class);
 
 	//Component Settings
-	SpringArm->SetRelativeLocation(FVector(0, 0, 60));
-	SpringArm->TargetArmLength = 400.f;
-	SpringArm->bDoCollisionTest = false;
-	SpringArm->bUsePawnControlRotation = true;
-	SpringArm->SocketOffset = FVector(60, 0, 0);
+//	SpringArm->SetRelativeLocation(FVector(0, 0, 60));
+//	SpringArm->TargetArmLength = 400.f;
+//	SpringArm->bDoCollisionTest = false;
+//	SpringArm->bUsePawnControlRotation = true;
+//	SpringArm->SocketOffset = FVector(60, 0, 0);
 
 	//Movement Settings
 	bUseControllerRotationYaw = false;
@@ -159,7 +159,6 @@ void ACPlayer::OnRifle()
 		return;
 	}
 	else {
-		CLog::Log("UnEqipppp");
 		Rifle->Equip();
 	}
 }
