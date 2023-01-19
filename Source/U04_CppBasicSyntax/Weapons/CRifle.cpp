@@ -1,10 +1,8 @@
-#include "CRifle.h"
-#include "CRifle.h"
-// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CRifle.h"
 #include "Global.h"
+#include "Characters/IRifle.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimMontage.h"
 #include "GameFramework/Character.h"
@@ -103,6 +101,29 @@ void ACRifle::BeginPlay()
 void ACRifle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// OnAim 일 때 표적판 마우스 대면 위젯.Dot을 빨간색으로
+	if (bAiming == false) return;
+
+	IIRifle* rifleInterface = Cast<IIRifle>(OwnerCharacter);
+	if (rifleInterface == nullptr) return;
+	FVector aimInfo[3];
+	rifleInterface->GetAimInfo(aimInfo[0], aimInfo[1], aimInfo[2]);
+	
+	//DrawDebugLine(GetWorld(), aimInfo[0], aimInfo[1], FColor::Red, false, -1.f, 0, 3.f);
+
+	FHitResult hitResult;
+	FCollisionQueryParams collisionQueryParams;
+	collisionQueryParams.AddIgnoredActor(this);
+	collisionQueryParams.AddIgnoredActor(OwnerCharacter);
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, aimInfo[0], aimInfo[1], ECollisionChannel::ECC_PhysicsBody, collisionQueryParams))
+	{
+		//Todo: 라인에 닿았으면 Owner->OnTarget 호출 외 여러개
+		// 충돌은 다른 곳에 할 것
+	}
+
+
+
 
 }
 

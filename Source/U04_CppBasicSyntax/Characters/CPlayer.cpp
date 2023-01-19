@@ -8,6 +8,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Blueprint/UserWidget.h"
+#include "widgets/CUserWidget_Aim.h"
 
 ACPlayer::ACPlayer()
 {
@@ -32,17 +34,22 @@ ACPlayer::ACPlayer()
 	if (animClass.Succeeded())
 		GetMesh()->SetAnimInstanceClass(animClass.Class);
 
+	// Widget Asset Load
+	ConstructorHelpers::FClassFinder<UCUserWidget_Aim> aimWidgetClass(TEXT("WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'"));
+	if (aimWidgetClass.Succeeded())
+		AimWidgetClass = aimWidgetClass.Class;
+
 	//Component Settings
-//	SpringArm->SetRelativeLocation(FVector(0, 0, 60));
-//	SpringArm->TargetArmLength = 400.f;
-//	SpringArm->bDoCollisionTest = false;
-//	SpringArm->bUsePawnControlRotation = true;
-//	SpringArm->SocketOffset = FVector(60, 0, 0);
+	SpringArm->SetRelativeLocation(FVector(0, 0, 60));
+	SpringArm->TargetArmLength = 400.f;
+	SpringArm->bDoCollisionTest = false;
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->SocketOffset = FVector(60, 0, 0);
 
 	//Movement Settings
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 }
 
 void ACPlayer::BeginPlay()
@@ -72,6 +79,11 @@ void ACPlayer::BeginPlay()
 	Rifle = ACRifle::Spawn(GetWorld(), this);
 
 	OnRifle();
+
+	// Create Widget
+	AimWidget = CreateWidget<UCUserWidget_Aim, APlayerController>(GetController<APlayerController>(), AimWidgetClass);
+	AimWidget->AddToViewport();
+	AimWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -176,6 +188,8 @@ void ACPlayer::OnAim()
 
 	ZoomIn();
 	Rifle->BeginAiming();
+
+	AimWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void ACPlayer::OffAim()
@@ -190,5 +204,26 @@ void ACPlayer::OffAim()
 
 	ZoomOut();
 	Rifle->EndAiming();
+	AimWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void ACPlayer::GetAimInfo(FVector& OutAimStart, FVector& OutAimEnd, FVector& OutAimDirection)
+{
+	OutAimDirection = Camera->GetForwardVector();
+	FTransform cameraTransform = Camera->GetComponentToWorld();
+	FVector cameraLocation = cameraTransform.GetLocation();	// 카메라의 월드상의 위치
+	OutAimStart = cameraLocation + OutAimDirection * 100.f;
+
+	FVector recoilCone = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(OutAimDirection, 0.2f);
+	OutAimEnd = OutAimStart + recoilCone * 3000.f;	// 30미터 바깥의 랜덤 
+}
+
+void ACPlayer::OnTarget()
+{
+	AimWidget->OnTarget();
+}
+
+void ACPlayer::OffTarget()
+{
+	AimWidget->OffTarget();
+}
