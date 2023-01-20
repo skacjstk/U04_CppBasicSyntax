@@ -35,6 +35,11 @@ public:
 	void BeginAiming();
 	void EndAiming();
 
+	void Begin_Fire();
+	void End_Fire();
+
+	void Firing();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,6 +59,9 @@ private:
 		class UAnimMontage* GrabMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 		class UAnimMontage* UngrabMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CameraShake")
+		TSubclassOf<class UCameraShake> CameraShakeClass;
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
@@ -62,4 +70,5 @@ private:
 	bool bEquipped; 	// true: OnRifle, False : OffRifle
 	bool bEquipping;	// 행동 모션 재생중일 때
 	bool bAiming;		// true: Aim 모션으로 
+	bool bFiring;
 };

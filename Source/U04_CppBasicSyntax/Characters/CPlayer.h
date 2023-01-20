@@ -57,6 +57,9 @@ private:
 	void OnAim();
 	void OffAim();
 
+	void OnFire();
+	void OffFire();
+
 public:
 
 	UPROPERTY()

@@ -6,6 +6,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimMontage.h"
 #include "GameFramework/Character.h"
+#include "Engine/StaticMeshActor.h"
+#include "Characters/CPlayer.h"
 
 // Sets default values
 ACRifle::ACRifle()
@@ -26,7 +28,9 @@ ACRifle::ACRifle()
 	ConstructorHelpers::FObjectFinder<UAnimMontage> UngrabMontageAsset(TEXT("AnimMontage'/Game/Character/Animations/Montages/Rifle_UnGrab_Montage.Rifle_UnGrab_Montage'"));
 	if (UngrabMontageAsset.Succeeded())
 		UngrabMontage = UngrabMontageAsset.Object;
-
+	ConstructorHelpers::FClassFinder<UCameraShake> cameraShakeAsset(TEXT("Blueprint'/Game/Weapons/BP_CameraShake.BP_CameraShake_C'"));
+	if (cameraShakeAsset.Succeeded())
+		CameraShakeClass = cameraShakeAsset.Class;
 }
 
 ACRifle* ACRifle::Spawn(UWorld* InWorld, ACharacter* InOwnerCharacter)
@@ -88,6 +92,69 @@ void ACRifle::EndAiming()
 	bAiming = false;	
 }
 
+void ACRifle::Begin_Fire()
+{
+	if (!bEquipped && bEquipping && bAiming) return;
+	if (bFiring == true) return;
+	bFiring = true;
+
+	Firing();
+	// 타겟 밀기, 불꽃파티클
+	// 총구 파티클, 탄피 파티클, 소리, 구멍데칼 
+}
+
+void ACRifle::End_Fire()
+{
+	bFiring = false;
+}
+
+void ACRifle::Firing()
+{
+	//Todo: Bullet Class 만들기, StaticMeshComp, ProjectileMovementComp, 
+	// 데칼, 소리, 파티클 등의 이펙트 
+	// Camera Shake 
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	// 플레이어만 카메라 섞기 
+	if (!!player) {
+		APlayerController* controller = player->GetController<APlayerController>();	// 템플릿으로 추려내기
+		if(!!CameraShakeClass)
+			controller->PlayerCameraManager->PlayCameraShake(CameraShakeClass);
+	}
+
+	IIRifle* rifleInterface = Cast<IIRifle>(OwnerCharacter);
+	if (rifleInterface == nullptr) return;
+	FVector aimInfo[3];
+	rifleInterface->GetAimInfo(aimInfo[0], aimInfo[1], aimInfo[2]);
+
+	//DrawDebugLine(GetWorld(), aimInfo[0], aimInfo[1], FColor::Red, false, -1.f, 0, 3.f);
+
+	FHitResult hitResult;
+	FCollisionQueryParams collisionQueryParams;
+	collisionQueryParams.AddIgnoredActor(this);
+	collisionQueryParams.AddIgnoredActor(OwnerCharacter);
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, aimInfo[0], aimInfo[1], ECollisionChannel::ECC_Visibility, collisionQueryParams))
+	{
+		AStaticMeshActor* staticMeshActor = Cast<AStaticMeshActor>(hitResult.GetActor());
+		if (!!staticMeshActor)
+		{
+			UStaticMeshComponent* staticMeshComp = Cast<UStaticMeshComponent>(staticMeshActor->GetRootComponent());
+			if (!!staticMeshComp)
+			{
+				// Add Impulse 
+				if (staticMeshComp->BodyInstance.bSimulatePhysics)
+				{
+					// 카메라가 보는 방향이라 좀 이질감 든다. 캐릭터 방향으로 수정
+					aimInfo[2] = staticMeshActor->GetActorLocation() - OwnerCharacter->GetActorLocation();
+					aimInfo[2].Normalize();
+					staticMeshComp->AddImpulseAtLocation(aimInfo[2] * 3000.f, OwnerCharacter->GetActorLocation());
+					return;
+				}//if (bSimulatePhysics)
+			}// if (!!staticMeshComp)
+		}// if (!!staticMeshActor)
+	}//if (LineTrace)
+}
+
+
 // Called when the game starts or when spawned
 void ACRifle::BeginPlay()
 {
@@ -118,12 +185,22 @@ void ACRifle::Tick(float DeltaTime)
 	collisionQueryParams.AddIgnoredActor(OwnerCharacter);
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, aimInfo[0], aimInfo[1], ECollisionChannel::ECC_PhysicsBody, collisionQueryParams))
 	{
-		//Todo: 라인에 닿았으면 Owner->OnTarget 호출 외 여러개
-		// 충돌은 다른 곳에 할 것
-	}
+		AStaticMeshActor* staticMeshActor = Cast<AStaticMeshActor>(hitResult.GetActor());
+		if (!!staticMeshActor)
+		{
+			UStaticMeshComponent* staticMeshComp = Cast<UStaticMeshComponent>(staticMeshActor->GetRootComponent());
+			if (!!staticMeshComp)
+			{
+				if (staticMeshComp->BodyInstance.bSimulatePhysics)
+				{
+					rifleInterface->OnTarget();
+					return;
 
+				}//if (bSimulatePhysics)
+			}// if (!!staticMeshComp)
+		}// if (!!staticMeshActor)
+	}//if (LineTrace)
 
-
-
+	rifleInterface->OffTarget();
 }
 
