@@ -64,6 +64,17 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "CameraShake")
 		TSubclassOf<class UCameraShake> CameraShakeClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UParticleSystem* FlashParticle;
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UParticleSystem* EjectParticle;
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UParticleSystem* ImpactParticle;
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class USoundCue* FireSoundCue;
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+		class UMaterialInstanceConstant* DecalMaterial;
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
