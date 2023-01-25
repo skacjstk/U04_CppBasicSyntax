@@ -49,6 +49,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
+		TSubclassOf<class ACBullet> BulletClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName HolsterSocket = "Holster_Rifle";
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")

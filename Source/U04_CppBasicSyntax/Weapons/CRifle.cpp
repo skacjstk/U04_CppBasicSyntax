@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "Engine/StaticMeshActor.h"
 #include "Characters/CPlayer.h"
+#include "CBullet.h"
 
 // Sets default values
 ACRifle::ACRifle()
@@ -31,6 +32,10 @@ ACRifle::ACRifle()
 	ConstructorHelpers::FClassFinder<UCameraShake> cameraShakeAsset(TEXT("Blueprint'/Game/Weapons/BP_CameraShake.BP_CameraShake_C'"));
 	if (cameraShakeAsset.Succeeded())
 		CameraShakeClass = cameraShakeAsset.Class;
+
+	ConstructorHelpers::FClassFinder<ACBullet> bulletClassAsset(TEXT("Blueprint'/Game/Weapons/BP_CBullet.BP_CBullet_C'"));
+	if (bulletClassAsset.Succeeded())
+		BulletClass = bulletClassAsset.Class;
 }
 
 ACRifle* ACRifle::Spawn(UWorld* InWorld, ACharacter* InOwnerCharacter)
@@ -110,8 +115,6 @@ void ACRifle::End_Fire()
 
 void ACRifle::Firing()
 {
-	//Todo: Bullet Class 만들기, StaticMeshComp, ProjectileMovementComp, 
-	// 데칼, 소리, 파티클 등의 이펙트 
 	// Camera Shake 
 	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
 	// 플레이어만 카메라 섞기 
@@ -121,13 +124,18 @@ void ACRifle::Firing()
 			controller->PlayerCameraManager->PlayCameraShake(CameraShakeClass);
 	}
 
+	// Get Aim info
 	IIRifle* rifleInterface = Cast<IIRifle>(OwnerCharacter);
 	if (rifleInterface == nullptr) return;
 	FVector aimInfo[3];
 	rifleInterface->GetAimInfo(aimInfo[0], aimInfo[1], aimInfo[2]);
+	
+	//Spawn Bullet
+	FVector muzzleLocation = Mesh->GetSocketLocation("MuzzleFlash");
+	if(!!BulletClass)
+		GetWorld()->SpawnActor<ACBullet>(BulletClass, muzzleLocation, aimInfo[2].Rotation());
 
-	//DrawDebugLine(GetWorld(), aimInfo[0], aimInfo[1], FColor::Red, false, -1.f, 0, 3.f);
-
+	//LineTrace (ECC_Visibility)
 	FHitResult hitResult;
 	FCollisionQueryParams collisionQueryParams;
 	collisionQueryParams.AddIgnoredActor(this);
