@@ -60,6 +60,8 @@ private:
 	void OnFire();
 	void OffFire();
 
+	void OnAutoFire();
+
 public:
 
 	UPROPERTY()
@@ -74,11 +76,15 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widget")
 		TSubclassOf<class UCUserWidget_Aim> AimWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widget")
+		TSubclassOf<class UCUserWidget_AutoFire> AutoFireWidgetClass;
 private:
 	class UMaterialInstanceDynamic* BodyMaterialDynamic;
 	class UMaterialInstanceDynamic* LogoMaterialDynamic;
 
 	class ACRifle* Rifle;
 	class UCUserWidget_Aim* AimWidget;
+	class UCUserWidget_AutoFire* AutoFireWidget;
 
 };

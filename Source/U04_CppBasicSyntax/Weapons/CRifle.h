@@ -20,8 +20,11 @@ public:
 	FORCEINLINE bool IsEquipped() { return bEquipped; }
 	FORCEINLINE bool IsEquipping() { return bEquipping; }
 	FORCEINLINE bool IsAiming() { return bAiming; }
-
-
+	
+	FORCEINLINE bool IsFiring() { return bFiring; }
+	FORCEINLINE bool IsAutoFire() { return bAutoFire; }
+	FORCEINLINE void ToggleAutoFire() { bAutoFire = !bAutoFire; }
+	
 	void Equip();
 
 	void Begin_Equip();
@@ -51,11 +54,12 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
 		TSubclassOf<class ACBullet> BulletClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
+		float PitchSpeed = 0.25f;
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName HolsterSocket = "Holster_Rifle";
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName HandSocket = "Hand_Rifle";
-
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 		class UAnimMontage* GrabMontage;
@@ -79,9 +83,14 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
 	class ACharacter* OwnerCharacter;
+	
+	float CurrentPitch;
 
 	bool bEquipped; 	// true: OnRifle, False : OffRifle
 	bool bEquipping;	// 행동 모션 재생중일 때
 	bool bAiming;		// true: Aim 모션으로 
 	bool bFiring;
+	bool bAutoFire;
+
+	FTimerHandle AutoFireTimer;
 };

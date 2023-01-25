@@ -7,6 +7,7 @@
 #include "Components/DecalComponent.h"
 #include "Animation/AnimMontage.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Characters/CPlayer.h"
 #include "CBullet.h"
@@ -89,18 +90,22 @@ void ACRifle::End_Equip()
 {
 	bEquipping = false;
 
+	OwnerCharacter->bUseControllerRotationYaw = true;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 void ACRifle::Begin_Unequip()
 {
 	bEquipped = false;
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), HolsterSocket);
-
 }
 
 void ACRifle::End_Unequip()
 {
 	bEquipping = false;
+
+	OwnerCharacter->bUseControllerRotationYaw = false;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void ACRifle::Unequip()
@@ -124,10 +129,17 @@ void ACRifle::EndAiming()
 
 void ACRifle::Begin_Fire()
 {
-	if (!bEquipped && bEquipping && bAiming) return;
+	if (!bEquipped && bEquipping) return;
 	if (bFiring == true) return;
 	bFiring = true;
 
+	CurrentPitch = 0.f;
+
+	if (bAutoFire)
+	{
+		GetWorld()->GetTimerManager().SetTimer(AutoFireTimer,this, &ACRifle::Firing, 0.1f, true);
+		return;
+	}
 	Firing();
 	// 타겟 밀기, 불꽃파티클
 	// 총구 파티클, 탄피 파티클, 소리, 구멍데칼 
@@ -136,6 +148,8 @@ void ACRifle::Begin_Fire()
 void ACRifle::End_Fire()
 {
 	bFiring = false;
+	if (bAutoFire == true)
+		GetWorld()->GetTimerManager().ClearTimer(AutoFireTimer);
 }
 
 void ACRifle::Firing()
@@ -165,6 +179,9 @@ void ACRifle::Firing()
 	UGameplayStatics::SpawnEmitterAttached(EjectParticle, Mesh, "EjectBullet", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundCue, muzzleLocation);
 
+	// Raising Pitch
+	CurrentPitch -= PitchSpeed * GetWorld()->GetDeltaSeconds();
+	OwnerCharacter->AddControllerPitchInput(CurrentPitch);
 
 	//LineTrace (ECC_Visibility)
 	FHitResult hitResult;

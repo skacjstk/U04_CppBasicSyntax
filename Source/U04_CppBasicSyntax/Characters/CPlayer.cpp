@@ -10,6 +10,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Blueprint/UserWidget.h"
 #include "widgets/CUserWidget_Aim.h"
+#include "widgets/CUserWidget_AutoFire.h"
 
 ACPlayer::ACPlayer()
 {
@@ -38,6 +39,10 @@ ACPlayer::ACPlayer()
 	ConstructorHelpers::FClassFinder<UCUserWidget_Aim> aimWidgetClass(TEXT("WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'"));
 	if (aimWidgetClass.Succeeded())
 		AimWidgetClass = aimWidgetClass.Class;
+
+	ConstructorHelpers::FClassFinder<UCUserWidget_AutoFire> autoFireWidgetClass(TEXT("WidgetBlueprint'/Game/Widgets/WB_AutoFire.WB_AutoFire_C'"));
+	if (autoFireWidgetClass.Succeeded())
+		AutoFireWidgetClass = autoFireWidgetClass.Class;
 
 	//Component Settings
 	SpringArm->SetRelativeLocation(FVector(0, 0, 60));
@@ -78,12 +83,18 @@ void ACPlayer::BeginPlay()
 
 	Rifle = ACRifle::Spawn(GetWorld(), this);
 
-	OnRifle();
-
 	// Create Widget
 	AimWidget = CreateWidget<UCUserWidget_Aim, APlayerController>(GetController<APlayerController>(), AimWidgetClass);
 	AimWidget->AddToViewport();
 	AimWidget->SetVisibility(ESlateVisibility::Hidden);
+
+	AutoFireWidget = CreateWidget<UCUserWidget_AutoFire, APlayerController>(GetController<APlayerController>(), AutoFireWidgetClass);
+	AutoFireWidget->AddToViewport(); 
+	AutoFireWidget->SetVisibility(ESlateVisibility::Visible);
+
+	OnRifle();
+
+	Rifle->IsAutoFire() ? AutoFireWidget->OnAutoFire() : AutoFireWidget->OffAutoFire();
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -114,6 +125,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACPlayer::OnFire);
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACPlayer::OffFire);
+
+
+	PlayerInputComponent->BindAction("ChangeFiremode", EInputEvent::IE_Pressed, this, &ACPlayer::OnAutoFire);
 
 
 }
@@ -183,10 +197,6 @@ void ACPlayer::OnAim()
 {
 	if(Rifle->IsEquipped() == false || Rifle->IsEquipping() == true) return;
 	
-
-	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-
 	SpringArm->TargetArmLength = 100.0f;
 	SpringArm->SocketOffset = FVector(0, 30, 10);
 
@@ -200,8 +210,8 @@ void ACPlayer::OffAim()
 {
 	if (Rifle->IsEquipped() == false || Rifle->IsEquipping() == true) return;
 
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+//	bUseControllerRotationYaw = false;
+//	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	SpringArm->TargetArmLength = 300.0f;
 	SpringArm->SocketOffset = FVector(0,60,0);
@@ -219,6 +229,13 @@ void ACPlayer::OnFire()
 void ACPlayer::OffFire()
 {
 	Rifle->End_Fire();
+}
+
+void ACPlayer::OnAutoFire()
+{
+	if (Rifle == nullptr || Rifle->IsFiring() == true) return;
+	Rifle->ToggleAutoFire();
+	Rifle->IsAutoFire() ? AutoFireWidget->OnAutoFire() : AutoFireWidget->OffAutoFire();
 }
 
 void ACPlayer::GetAimInfo(FVector& OutAimStart, FVector& OutAimEnd, FVector& OutAimDirection)
