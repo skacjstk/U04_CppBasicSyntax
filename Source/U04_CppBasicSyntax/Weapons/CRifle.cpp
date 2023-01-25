@@ -98,14 +98,14 @@ void ACRifle::Begin_Unequip()
 {
 	bEquipped = false;
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), HolsterSocket);
+	OwnerCharacter->bUseControllerRotationYaw = false;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void ACRifle::End_Unequip()
 {
 	bEquipping = false;
 
-	OwnerCharacter->bUseControllerRotationYaw = false;
-	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void ACRifle::Unequip()
@@ -115,6 +115,7 @@ void ACRifle::Unequip()
 	bEquipping = true;
 
 	OwnerCharacter->PlayAnimMontage(UngrabMontage, 1.75f);
+	End_Fire();
 }
 
 void ACRifle::BeginAiming()
@@ -129,7 +130,7 @@ void ACRifle::EndAiming()
 
 void ACRifle::Begin_Fire()
 {
-	if (!bEquipped && bEquipping) return;
+	if (!bEquipped || bEquipping) return;
 	if (bFiring == true) return;
 	bFiring = true;
 
